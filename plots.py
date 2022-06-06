@@ -7,21 +7,38 @@ import streamlit as st
 from sklearn.preprocessing import StandardScaler
 
 
-def scree_plot(df, max_comp, title = None):
-    scaled_df = pd.DataFrame(StandardScaler().fit_transform(df.dropna()), columns=df.columns)
-    pca = skd.PCA(n_components=max_comp)
-    pca_fit = pca.fit(scaled_df)
-  
-    pc_values = np.arange(pca.n_components_) + 1
-    st.write(pc_values)
-    fig = px.line(x=pc_values, y=pca.explained_variance_ratio_, markers=True,
-        labels={"x":"Principal Components", "y":"Explained Variance"}, title="Scree Plot")
-    fig.update_layout(
-        # margin=dict(l=10,r=10,t=10,b=10),
-        width=600,
-        height=400)
-    # fig.update_annotations({"text":"Test123", "arrowcolor":"white","bgcolor":"white"})
+@st.cache
+def get_pca_explained_variance(df, max_comp=None) -> list[float]:
+    """Get the global PCA results"""
+    scaled_df = pd.DataFrame(
+        StandardScaler().fit_transform(df.dropna()), columns=df.columns)
+    try:
+        pca = skd.PCA(n_components=max_comp)
+        return list(pca.fit(scaled_df).explained_variance_ratio_)
+    except ValueError as _:
+        pca = skd.PCA(n_components=None)
+        return list(pca.fit(scaled_df).explained_variance_ratio_)
+
+
+@st.cache
+def get_pca_by_group_values(df, mapping) -> dict[int,list[float]]:
+    """Get the PCA results based on variable groups"""
+    result = dict()
+    for group_id in mapping["group"].unique():
+        columns = list(mapping[mapping["group"]==group_id]["fred"])
+        result[int(group_id)] = get_pca_explained_variance(df[columns], 20)
+
+    return result
+
+
+def scree_plot(pca_vals) -> None:
+    """Plot the PCA explained variance values"""
+
+    pc_values = np.arange(len(pca_vals)) + 1
+    fig = px.line(x=pc_values, y=pca_vals,
+        markers=True,
+        labels={"x":"Principal Components", "y":"Explained Variance"}, 
+        title="Scree Plot")
+    fig.update_layout(width=600, height=400)
 
     st.plotly_chart(fig)
-
-    return pca.explained_variance_ratio_

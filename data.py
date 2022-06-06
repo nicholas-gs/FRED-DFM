@@ -58,8 +58,8 @@ def grouping_table():
         (2, "Labor Market"),
         (3, "Housing"),
         (4, "Consumption, orders, and inventories"),
-        (5, " Money and credit"),
-        (6, " Interest and exchange rates"),
+        (5, "Money and credit"),
+        (6, "Interest and exchange rates"),
         (7, "Prices"),
         (8, "Stock Market")
         ], columns=['group', 'group description'])

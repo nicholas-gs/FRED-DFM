@@ -198,12 +198,49 @@ def variable_grouping_section(transformed_df, tf_mapping_df: pd.DataFrame):
     st.write(tf_mapping_df[["fred","group description"]].groupby(by="group description")
         .count().sort_values('fred', ascending=False).rename(columns={"fred":"count"}))
     st.write(
-        tf_mapping_df[["fred","fred description","group description","Transformation Description"]
+        tf_mapping_df[[
+            "fred","fred description","group description",
+            "Transformation Description"]
         ].set_index(["group description", "fred description"]))
 
 
-def dfm1_section(transformed_df, transform_mapping):
-    plots.scree_plot(transformed_df, max_comp=20)
+def principal_components_section(transformed_df, transform_mapping):
+    """
+    Get the PCA values and show scree plots for both global factors
+    and grouped variables.
+    """
+    st.header("Principal Components")
+    tc1, tc2 = st.columns(2)
+
+    # Maximum number of PCs to analyze
+    max_comp = 20
+
+    # Global Principal Components
+    with tc1:
+        st.subheader("Global")
+        variance_ratios = plots.get_pca_explained_variance(transformed_df, 20)
+        plots.scree_plot(variance_ratios)
+        comps = st.slider("Number of PCs", min_value=1, max_value=max_comp,
+            value=4, key=123)
+        st.write(f"""The first 4 PCs explains
+            {sum(variance_ratios[0:comps])*100:.2f}% of the total variance.""")
+
+    with tc2:
+        st.subheader("Grouped")
+        grouping_table = data.grouping_table()
+        option_name = st.selectbox(label="Select variable group",
+            options=list(grouping_table["group description"]), index=0)
+        option_id = grouping_table[
+            grouping_table["group description"]==option_name]["group"].iloc[0]
+
+        variance_ratios = plots.get_pca_by_group_values(
+            transformed_df, transform_mapping)
+        plots.scree_plot(variance_ratios[option_id])
+        comps = st.slider("Number of PCs", min_value=1, max_value=max_comp,
+            value=4, key=420)
+        st.write(f"""The first 4 PCs explains
+            {sum(variance_ratios[option_id][0:comps])*100:.2f}%
+            of the total variance.""")
 
 
 sidebar(appendix['description'])
@@ -234,5 +271,6 @@ transform_mapping = transform_mapping[~transform_mapping["fred"]
 transformed_df.drop(columns=constant.AGGREGATION_COLUMNS, inplace=True)
 
 data_cleaning_section(raw_data, transformed_df, transform_mapping)
-variable_grouping_section(transformed_df, transform_mapping)
-dfm1_section(transformed_df, transform_mapping)
+principal_components_section(transformed_df, transform_mapping)
+
+# variable_grouping_section(transformed_df, transform_mapping)

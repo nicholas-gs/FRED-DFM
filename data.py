@@ -65,6 +65,26 @@ def grouping_table():
         ], columns=['group', 'group description'])
 
 
+def get_transform_mapping(appendix):
+    # Transform the dataframe based on what is recommended, with a few changes
+    # These series are not stationary with the original transformations
+    transform_mapping = appendix[['tcode','fred','description','group']].copy()
+    transform_mapping.loc[transform_mapping['fred'].isin(
+        ['HOUSTMW', 'HOUSTS', 'PERMITNE', 'PERMITMW']),
+        'tcode'] = 5.0
+    transform_mapping = pd.merge(transform_mapping, transformation_table(),
+        how="inner", left_on="tcode", right_on="Transformation ID")
+    transform_mapping = pd.merge(transform_mapping, grouping_table(),
+        how="inner", left_on="group", right_on="group")
+    transform_mapping.drop(columns="Transformation ID", inplace=True)
+    transform_mapping.rename(columns={
+        "description":"fred description",
+        "Description":"Transformation Description"},
+        inplace=True)
+
+    return transform_mapping
+
+
 def transform_data(data_df, tf):
     """Transform data to be stationary"""
     transformed_data_df = data_df.copy()

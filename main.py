@@ -248,27 +248,15 @@ if __name__ == "__main__":
     untransformed_data_expander(raw_data, appendix)
     eda_expander(raw_data, appendix)
 
-    # Transform the dataframe based on what is recommended, with a few changes
-    # These series are not stationary with the original transformations
-    transform_mapping = appendix[['tcode','fred','description','group']].copy()
-    transform_mapping.loc[transform_mapping['fred'].isin(
-        ['HOUSTMW', 'HOUSTS', 'PERMITNE', 'PERMITMW']),
-        'tcode'] = 5.0
-    transform_mapping = pd.merge(transform_mapping, data.transformation_table(), how="inner",
-        left_on="tcode", right_on="Transformation ID")
-    transform_mapping = pd.merge(transform_mapping, data.grouping_table(), how="inner",
-        left_on="group", right_on="group")
-    transform_mapping.drop(columns="Transformation ID", inplace=True)
-    transform_mapping.rename(columns={
-        "description":"fred description",
-        "Description":"Transformation Description"},
-        inplace=True)
+    transform_mapping = data.get_transform_mapping(appendix)
 
     transformed_df = data.transform_data(raw_data, transform_mapping)
 
     # Drop the aggregation columns from the transformed and appendix dataframes
     transform_mapping = transform_mapping[~transform_mapping["fred"]
         .isin(constant.AGGREGATION_COLUMNS)]
+
+    # Drop all aggregation columns
     transformed_df.drop(columns=constant.AGGREGATION_COLUMNS, inplace=True)
 
     data_cleaning_section(raw_data, transformed_df, transform_mapping)

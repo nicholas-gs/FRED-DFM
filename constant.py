@@ -12,8 +12,11 @@ AGGREGATION_COLUMNS = ['PAYEMS', 'HOUST', 'PERMIT', 'ISRATIOx', 'RPI',
                        'IPCONGD', 'IPMAT', 'IPMANSICS', 'UNRATE', 'CPIULFSL',
                        'CUSR0000SA0L2', 'CUSR0000SA0L5']
 
+# Global Factors Only
 DFM1_MODEL_NAME = "dfm1"
+# Global Factors and Group Specific Factors
 DFM2_MODEL_NAME = "dfm2"
+# Group Specific Factors Only
 DFM3_MODEL_NAME = "dfm3"
 
 import os

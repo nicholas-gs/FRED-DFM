@@ -258,11 +258,15 @@ def dfm_prediction_section(transformed_df, transform_mapping, insample_ts_name):
         constant.DFM1_MODEL_NAME, training_df, transform_mapping)
     dfm2_model = model.get_model(
         constant.DFM2_MODEL_NAME, training_df, transform_mapping)
+    dfm3_model = model.get_model(
+        constant.DFM3_MODEL_NAME, training_df, transform_mapping)
 
     # In-sample predictions
     dfm1_insample_preds = model.insample_predictions(dfm1_model,
         start="2000", end="2019")
     dfm2_insample_preds = model.insample_predictions(dfm2_model,
+        start="2000", end="2019")
+    dfm3_insample_preds = model.insample_predictions(dfm3_model,
         start="2000", end="2019")
 
     # Pseudo OOS predictions
@@ -275,12 +279,16 @@ def dfm_prediction_section(transformed_df, transform_mapping, insample_ts_name):
         transform_mapping["fred description"] == insample_ts_name
         ]["fred"].iloc[0]
 
-    plots.plot_predictions({"Global Factors Only" :
+    plots.plot_predictions({
+        "Global Factors Only" :
         (training_df["2000":"2019"][insample_ts_fred], 
             dfm1_insample_preds[insample_ts_fred]),
         "Global & Group Factors":
             (training_df["2000":"2019"][insample_ts_fred], 
-            dfm2_insample_preds[insample_ts_fred])
+            dfm2_insample_preds[insample_ts_fred]),
+        "Group Factors Only":
+            (training_df["2000":"2019"][insample_ts_fred], 
+            dfm3_insample_preds[insample_ts_fred])
         }
     )
 

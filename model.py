@@ -53,8 +53,28 @@ def dfm2(training_df, tf_mapping_df):
     return dfm_model.fit(disp=10)
 
 
-def dfm3(training_df):
-    pass
+def dfm3(training_df, tf_mapping_df):
+    """Group Specific Factors Only"""
+    cols = list(training_df.columns)
+    factors = {
+        col: [tf_mapping_df[tf_mapping_df["fred"]==col]["group description"]
+                .iloc[0]] for col in cols}
+
+    factor_multiplicities = {'Housing' : 2, 
+                            'Consumption, orders, and inventories' : 3,
+                            'Money and credit' : 3,
+                            'Interest and exchange rates' :2,
+                            'Stock Market' : 2}
+
+    # Construct the dynamic factor model
+    dfm_model = sm.tsa.DynamicFactorMQ(
+        endog=training_df,
+        factors=factors,
+        factor_multiplicities=factor_multiplicities,
+        standardize=True
+    )
+    
+    return dfm_model.fit(disp=10)
 
 
 mapping = {

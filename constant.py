@@ -24,7 +24,7 @@ DFM2_MODEL_PATH = os.path.join(MODELS_DIR, DFM2_MODEL_NAME)
 DFM3_MODEL_PATH = os.path.join(MODELS_DIR, DFM3_MODEL_NAME)
 
 
-def model_name_to_path(model_name: str) -> str | None:
+def model_name_to_path(model_name: str):
     mapping = {
         DFM1_MODEL_NAME : DFM1_MODEL_PATH,
         DFM2_MODEL_NAME : DFM2_MODEL_PATH,

@@ -6,3 +6,10 @@ env
 
 # Downloaded FRED appendix
 FRED-MD Appendix
+
+# Secrets
+.streamlit/secrets.toml
+ServiceKey_GoogleCloud.json
+
+# Trained Models
+models/

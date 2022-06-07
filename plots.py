@@ -6,6 +6,7 @@ import sklearn.decomposition as skd
 import streamlit as st
 
 from sklearn.preprocessing import StandardScaler
+from plotly.subplots import make_subplots
 
 
 @st.cache
@@ -45,8 +46,24 @@ def scree_plot(pca_vals) -> None:
     st.plotly_chart(fig)
 
 
-def plot_predictions(df1, df2, ts_name: str=None):
-    fig = go.Figure()
-    fig.add_trace(go.Line(x=df1.index, y=df1[ts_name]))
-    fig.add_trace(go.Line(x=df2.index, y=df2[ts_name]))
+def plot_predictions(ts: dict[str, tuple[list[float], list[float]]]):
+    model_names = list(ts.keys())
+    fig = make_subplots(rows=len(model_names), cols=1,
+        subplot_titles=model_names)
+
+    for row, model_name in enumerate(model_names):
+        actual_vals = ts[model_name][0]
+        pred_vals = ts[model_name][1]
+        fig.add_trace(go.Scatter(x=actual_vals.index, y=actual_vals,
+            mode="lines", name="actual", line={"color":"mediumslateblue"}),
+            row=row+1, col=1)
+        fig.add_trace(go.Scatter(x=pred_vals.index, y=pred_vals,
+            mode="lines", name="prediction", line={"color":"orangered"}), 
+            row=row+1, col=1)
+        if row is not 0:
+            fig.update_traces({"showlegend":False}, row=row+1, col=1)
+
+
+    fig.update_layout(height=800, width=800)
+
     st.plotly_chart(fig)

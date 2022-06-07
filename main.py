@@ -248,15 +248,51 @@ def principal_components_section(transformed_df, transform_mapping):
 
 
 def dfm_prediction_section(transformed_df, transform_mapping, insample_ts_name):
+    st.header("In-sample predictions")
+    st.subheader(insample_ts_name)
+
     training_df = model.get_training_dataset(transformed_df)
-    dfm1_model = model.get_model(constant.DFM1_MODEL_NAME, training_df)
-    dfm1_insample_preds = model.insample_predictions(dfm1_model)
+
+    # Get fitted DFMs
+    dfm1_model = model.get_model(
+        constant.DFM1_MODEL_NAME, training_df, transform_mapping)
+    dfm2_model = model.get_model(
+        constant.DFM2_MODEL_NAME, training_df, transform_mapping)
+
+    # In-sample predictions
+    dfm1_insample_preds = model.insample_predictions(dfm1_model,
+        start="2000", end="2019")
+    dfm2_insample_preds = model.insample_predictions(dfm2_model,
+        start="2000", end="2019")
+
+    # Pseudo OOS predictions
+    # dfm1_oos_preds = model.nowcasting(model=dfm1_model,
+    #     training_df=training_df, transformed_data_df=transformed_df)
+    # dfm2_oos_preds = model.nowcasting(model=dfm2_model,
+    #     training_df=training_df, transformed_data_df=transformed_df)
 
     insample_ts_fred = transform_mapping[
         transform_mapping["fred description"] == insample_ts_name
         ]["fred"].iloc[0]
-    plots.plot_predictions(
-        training_df["2000":"2019"], dfm1_insample_preds, insample_ts_fred)
+
+    plots.plot_predictions({"Global Factors Only" :
+        (training_df["2000":"2019"][insample_ts_fred], 
+            dfm1_insample_preds[insample_ts_fred]),
+        "Global & Group Factors":
+            (training_df["2000":"2019"][insample_ts_fred], 
+            dfm2_insample_preds[insample_ts_fred])
+        }
+    )
+
+    st.subheader("Out-of-sample Predictions")
+    # plots.plot_predictions({"Global Factors Only" :
+    #     (transformed_df["2020":"2020"][insample_ts_fred], 
+    #         dfm1_oos_preds[insample_ts_fred]),
+    #     "Global & Group Factors":
+    #         (transformed_df["2000":"2020"][insample_ts_fred], 
+    #         dfm2_oos_preds[insample_ts_fred])
+    #     }
+    # )
 
 
 if __name__ == "__main__":
@@ -280,4 +316,5 @@ if __name__ == "__main__":
     insample_pred_name = sidebar(transform_mapping["fred description"])
 
     # variable_grouping_section(transformed_df, transform_mapping)
-    dfm_prediction_section(transformed_df, transform_mapping, insample_pred_name)
+    dfm_prediction_section(transformed_df, transform_mapping,
+        insample_pred_name)

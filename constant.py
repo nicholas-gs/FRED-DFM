@@ -40,3 +40,13 @@ def model_name_to_path(model_name: str):
 
 TRAINING_SAMPLE_START = "1961"
 TRAINING_SAMPLE_END = "2019"
+
+
+import streamlit as st
+
+from google.oauth2 import service_account
+GCS_CREDENTIALS = service_account.Credentials.from_service_account_info(
+    st.secrets["gcp_service_account"]
+)
+
+GCS_BUCKET = "streamlit-fred"

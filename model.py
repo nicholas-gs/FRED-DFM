@@ -3,6 +3,10 @@ import streamlit as st
 import pandas as pd
 import os
 
+from google.oauth2 import service_account
+from google.cloud import storage
+from io import BytesIO
+
 import constant
 import data
 
@@ -106,6 +110,17 @@ def get_model(model_name: str, training_df, tf_mapping) -> object:
 def get_training_dataset(df):
     return data.remove_outliers(df[
         constant.TRAINING_SAMPLE_START:constant.TRAINING_SAMPLE_END])
+
+
+@st.experimental_memo(ttl=None)
+def unpack_model(model_type: str) -> object:
+    print(f"Unpacking model {model_type} from Google Cloud Storage")
+    """Load pickled statsmodel from Google Cloud Storage"""
+    client = storage.Client(credentials=constant.GCS_CREDENTIALS)
+    bucket = client.bucket(constant.GCS_BUCKET)
+    model = sm.load(BytesIO(bucket.blob(model_type).download_as_bytes()))
+    print(f"Model {model_type} loaded from Google Cloud Storage")
+    return model
 
 
 def insample_predictions(fitted_model, start, end):

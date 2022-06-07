@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import sklearn.decomposition as skd
 import streamlit as st
 
@@ -41,4 +42,11 @@ def scree_plot(pca_vals) -> None:
         title="Scree Plot")
     fig.update_layout(width=600, height=400)
 
+    st.plotly_chart(fig)
+
+
+def plot_predictions(df1, df2, ts_name: str=None):
+    fig = go.Figure()
+    fig.add_trace(go.Line(x=df1.index, y=df1[ts_name]))
+    fig.add_trace(go.Line(x=df2.index, y=df2[ts_name]))
     st.plotly_chart(fig)

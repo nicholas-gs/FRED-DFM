@@ -12,3 +12,28 @@ AGGREGATION_COLUMNS = ['PAYEMS', 'HOUST', 'PERMIT', 'ISRATIOx', 'RPI',
                        'IPCONGD', 'IPMAT', 'IPMANSICS', 'UNRATE', 'CPIULFSL',
                        'CUSR0000SA0L2', 'CUSR0000SA0L5']
 
+DFM1_MODEL_NAME = "dfm1"
+DFM2_MODEL_NAME = "dfm2"
+DFM3_MODEL_NAME = "dfm3"
+
+import os
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+MODELS_DIR = os.path.join(CURRENT_DIR, "models")
+DFM1_MODEL_PATH = os.path.join(MODELS_DIR, DFM1_MODEL_NAME)
+DFM2_MODEL_PATH = os.path.join(MODELS_DIR, DFM2_MODEL_NAME)
+DFM3_MODEL_PATH = os.path.join(MODELS_DIR, DFM3_MODEL_NAME)
+
+
+def model_name_to_path(model_name: str) -> str | None:
+    mapping = {
+        DFM1_MODEL_NAME : DFM1_MODEL_PATH,
+        DFM2_MODEL_NAME : DFM2_MODEL_PATH,
+        DFM3_MODEL_NAME : DFM3_MODEL_PATH
+    }
+    if model_name in mapping:
+        return mapping[model_name]
+    return None
+
+
+TRAINING_SAMPLE_START = "1961"
+TRAINING_SAMPLE_END = "2019"

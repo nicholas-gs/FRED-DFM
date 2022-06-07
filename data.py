@@ -19,7 +19,7 @@ def download_data():
     data['datetime'] = pd.to_datetime(data['sasdate'])
     data.set_index('datetime', inplace=True)
     data.drop(['sasdate'], axis=1, inplace=True)
-    data.index = data.index.date
+    # data.index = data.index.date
 
     # Drop the last row which is all empty
     if data.iloc[-1].isnull().all():

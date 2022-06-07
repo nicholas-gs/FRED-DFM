@@ -4,9 +4,11 @@ import pandas as pd
 import numpy as np
 import calendar
 
-import data
 import constant
 import plots
+import model
+import data
+
 
 st.set_page_config(layout="wide")
 
@@ -28,10 +30,12 @@ def sidebar(ts_names: list[str]):
         1. Which variables to predict 
     """
     st.sidebar.write("User Output Selection")
-    ts_selections = st.sidebar.multiselect(
-            label='Variables to predict',
-            options=ts_names)
+    insample_pred_name = st.sidebar.selectbox(
+            label="In-sample prediction",
+            options=ts_names,
+            index=0)
 
+    return insample_pred_name
 
 def untransformed_data_expander(raw_data, appendix):
     with st.expander("Untransformed data"):
@@ -243,8 +247,19 @@ def principal_components_section(transformed_df, transform_mapping):
             of the total variance.""")
 
 
+def dfm_prediction_section(transformed_df, transform_mapping, insample_ts_name):
+    training_df = model.get_training_dataset(transformed_df)
+    dfm1_model = model.get_model(constant.DFM1_MODEL_NAME, training_df)
+    dfm1_insample_preds = model.insample_predictions(dfm1_model)
+
+    insample_ts_fred = transform_mapping[
+        transform_mapping["fred description"] == insample_ts_name
+        ]["fred"].iloc[0]
+    plots.plot_predictions(
+        training_df["2000":"2019"], dfm1_insample_preds, insample_ts_fred)
+
+
 if __name__ == "__main__":
-    sidebar(appendix['description'])
     untransformed_data_expander(raw_data, appendix)
     eda_expander(raw_data, appendix)
 
@@ -262,4 +277,7 @@ if __name__ == "__main__":
     data_cleaning_section(raw_data, transformed_df, transform_mapping)
     principal_components_section(transformed_df, transform_mapping)
 
+    insample_pred_name = sidebar(transform_mapping["fred description"])
+
     # variable_grouping_section(transformed_df, transform_mapping)
+    dfm_prediction_section(transformed_df, transform_mapping, insample_pred_name)

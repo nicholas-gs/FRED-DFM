@@ -8,7 +8,7 @@ import os
 
 from urllib.request import urlopen
 
-from . import constant
+import constant
 
 
 @st.cache

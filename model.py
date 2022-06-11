@@ -2,10 +2,8 @@ import statsmodels.api as sm
 import pandas as pd
 import os
 
-from . import (
-    data,
-    constant
-)
+import data
+import constant
 
 
 def dfm1(training_df, *args):

@@ -3,14 +3,11 @@ import streamlit as st
 import pandas as pd
 import calendar
 
-
-from . import (
-    gcs,
-    data,
-    plots,
-    model,
-    constant
-)
+import gcs
+import data
+import plots
+import model
+import constant
 
 
 st.set_page_config(layout="wide")

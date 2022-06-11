@@ -11,5 +11,5 @@ FRED-MD Appendix
 .streamlit/secrets.toml
 ServiceKey_GoogleCloud.json
 
-# Trained Models
-models/
+# Trained Models and saved outputs
+out/

@@ -34,5 +34,6 @@ def unpack_csv(file_path: str) -> pd.DataFrame:
     df.columns = df.iloc[0]
     df = df[1:-1] # Drop first and last row
     df.set_index(df.iloc[:,0], inplace=True)
+    df.index = pd.to_datetime(df.index)
 
     return df

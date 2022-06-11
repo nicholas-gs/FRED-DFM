@@ -1,14 +1,11 @@
 import statsmodels.api as sm
-import streamlit as st
 import pandas as pd
 import os
 
-from google.oauth2 import service_account
-from google.cloud import storage
-from io import BytesIO
-
-import constant
-import data
+from . import (
+    data,
+    constant
+)
 
 
 def dfm1(training_df, *args):
@@ -88,7 +85,10 @@ mapping = {
 }
 
 
-def get_model(model_name: str, training_df, tf_mapping) -> object:
+def get_model(model_name: str, training_df, tf_mapping):
+    """Retrieve the model saved in local directory, or if it does not exist,
+    then train the model and save it to local directory.
+    """
     # If model directory does not exist
     if not os.path.exists(constant.MODELS_DIR):
         os.makedirs(constant.MODELS_DIR)
@@ -110,17 +110,6 @@ def get_model(model_name: str, training_df, tf_mapping) -> object:
 def get_training_dataset(df):
     return data.remove_outliers(df[
         constant.TRAINING_SAMPLE_START:constant.TRAINING_SAMPLE_END])
-
-
-@st.experimental_memo(ttl=None)
-def unpack_model(model_type: str) -> object:
-    print(f"Unpacking model {model_type} from Google Cloud Storage")
-    """Load pickled statsmodel from Google Cloud Storage"""
-    client = storage.Client(credentials=constant.GCS_CREDENTIALS)
-    bucket = client.bucket(constant.GCS_BUCKET)
-    model = sm.load(BytesIO(bucket.blob(model_type).download_as_bytes()))
-    print(f"Model {model_type} loaded from Google Cloud Storage")
-    return model
 
 
 def insample_predictions(fitted_model, start, end):

@@ -3,11 +3,12 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import zipfile
-import constant
 import shutil
 import os
 
 from urllib.request import urlopen
+
+from . import constant
 
 
 @st.cache

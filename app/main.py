@@ -1,13 +1,16 @@
 import plotly.express as px
 import streamlit as st
 import pandas as pd
-import numpy as np
 import calendar
 
-import constant
-import plots
-import model
-import data
+
+from . import (
+    gcs,
+    data,
+    plots,
+    model,
+    constant
+)
 
 
 st.set_page_config(layout="wide")
@@ -253,18 +256,10 @@ def dfm_prediction_section(transformed_df, transform_mapping, insample_ts_name):
 
     training_df = model.get_training_dataset(transformed_df)
 
-    # Get fitted DFMs
-    dfm1_model = model.unpack_model(constant.DFM1_MODEL_NAME)
-    # dfm2_model = model.unpack_model(constant.DFM2_MODEL_NAME)
-    # dfm3_model = model.unpack_model(constant.DFM3_MODEL_NAME)
+    # All in-sample predictions from GCS
+    dfm1_insample_preds, dfm2_insample_preds, dfm3_insample_preds = (
+        gcs.unpack_csv(f"dfm{i}_insample_preds.csv") for i in range(1,4))
 
-    # In-sample predictions
-    dfm1_insample_preds = model.insample_predictions(dfm1_model,
-        start="2000", end="2019")
-    # dfm2_insample_preds = model.insample_predictions(dfm2_model,
-    #     start="2000", end="2019")
-    # dfm3_insample_preds = model.insample_predictions(dfm3_model,
-    #     start="2000", end="2019")
 
     # Pseudo OOS predictions
     # dfm1_oos_preds = model.nowcasting(model=dfm1_model,
@@ -278,7 +273,7 @@ def dfm_prediction_section(transformed_df, transform_mapping, insample_ts_name):
 
     plots.plot_predictions({
         "Global Factors Only" :
-        (training_df["2000":"2019"][insample_ts_fred], 
+        (training_df[:][insample_ts_fred], 
             dfm1_insample_preds[insample_ts_fred])
         # "Global & Group Factors":
         #     (training_df["2000":"2019"][insample_ts_fred], 

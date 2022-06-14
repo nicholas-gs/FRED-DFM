@@ -60,7 +60,7 @@ def plot_predictions(ts: dict[str, tuple[list[float], list[float]]]):
         fig.add_trace(go.Scatter(x=pred_vals.index, y=pred_vals,
             mode="lines", name="prediction", line={"color":"orangered"}), 
             row=row+1, col=1)
-        if row is not 0:
+        if row != 0:
             fig.update_traces({"showlegend":False}, row=row+1, col=1)
 
     fig.update_layout(height=800)

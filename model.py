@@ -1,6 +1,5 @@
 import statsmodels.api as sm
 import pandas as pd
-import os
 
 import data
 import constant
@@ -83,26 +82,18 @@ mapping = {
 }
 
 
-def get_model(model_name: str, training_df, tf_mapping):
-    """Retrieve the model saved in local directory, or if it does not exist,
-    then train the model and save it to local directory.
-    """
-    # If model directory does not exist
-    if not os.path.exists(constant.MODELS_DIR):
-        os.makedirs(constant.MODELS_DIR)
-    
-    model_path = constant.model_name_to_path(model_name)
-    if model_path is None:
-        raise ValueError("Model name does not exist")
-    # If the saved model does not exist
-    if not os.path.exists(model_path):
-        fitted_model = mapping[model_name](training_df, tf_mapping)
-        fitted_model.save(model_path)
-        return fitted_model
-    else:
-        # Load model from memory
-        print(f"Loading model from memory: {model_name}")
-        return sm.load(model_path)
+def train_model(model_name: str,
+    train_df: pd.DataFrame, tf_mapping: pd.DataFrame
+):
+    return mapping[model_name](train_df, tf_mapping)
+
+
+def save_model(model, file_path: str):
+    model.save(file_path)
+
+
+def load_model(file_path: str):
+    return sm.load(file_path)
 
 
 def get_training_dataset(df):

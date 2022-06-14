@@ -1,4 +1,3 @@
-from typing import Dict
 import statsmodels.api as sm
 import streamlit as st
 import pandas as pd
@@ -7,6 +6,7 @@ import zipfile
 import shutil
 import os
 
+from typing import Dict
 from urllib.request import urlopen
 from sklearn.metrics import (
     mean_squared_error,

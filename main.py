@@ -4,7 +4,7 @@ import pandas as pd
 import calendar
 
 from dataclasses import dataclass
-from typing import Union
+from typing import Optional, Tuple
 
 import gcs
 import data
@@ -14,10 +14,15 @@ import constant
 
 
 @dataclass
-class Sidebar_Input:
+class Sidebar_Insample_Input:
     timeseries: str
-    insample_start: Union[str, None]
-    insample_end: Union[str, None]
+    insample_start: Optional[str]
+    insample_end: Optional[str]
+
+
+@dataclass
+class Sidebar_OOS_Input:
+    timeseries: str
 
 
 st.set_page_config(layout="wide")
@@ -35,7 +40,8 @@ st.success("Data downloaded!")
 
 
 def sidebar(ts_names: list[str],
-    insample_start: int, insample_end: int) -> Sidebar_Input:
+    insample_start: int, insample_end: int
+) -> Tuple[Sidebar_Insample_Input, Sidebar_OOS_Input]:
     """
     Sidebar to allow users to select:
         1. Which variables to predict 
@@ -58,8 +64,15 @@ def sidebar(ts_names: list[str],
         """)
         insample_start_sel = insample_end_sel = None
 
-    return Sidebar_Input(timeseries=insample_pred_name,
-        insample_start=insample_start_sel, insample_end=insample_end_sel)
+    oos_pred_name = st.sidebar.selectbox(
+            label="Out of Sample prediction",
+            options=ts_names,
+            index=0)
+
+    return (Sidebar_Insample_Input(timeseries=insample_pred_name,
+        insample_start=insample_start_sel, insample_end=insample_end_sel),
+        Sidebar_OOS_Input(oos_pred_name)
+    )
 
 
 def untransformed_data_expander(raw_data, appendix):
@@ -272,20 +285,14 @@ def principal_components_section(transformed_df, transform_mapping):
             of the total variance.""")
 
 
-def insample_predictions_selection(training_df, transform_mapping,
-    selection: Sidebar_Input):
+def insample_predictions_section(training_df, transform_mapping,
+    selection: Sidebar_Insample_Input):
     st.header("In-sample predictions")
     st.subheader(selection.timeseries)
 
     # All in-sample predictions from GCS
     insample_preds = (
         gcs.unpack_csv(f"dfm{i}_insample_preds.csv") for i in range(1,4))
-
-    # Pseudo OOS predictions
-    # dfm1_oos_preds = model.nowcasting(model=dfm1_model,
-    #     training_df=training_df, transformed_data_df=transformed_df)
-    # dfm2_oos_preds = model.nowcasting(model=dfm2_model,
-    #     training_df=training_df, transformed_data_df=transformed_df)
 
     insample_ts_fred = transform_mapping[
         transform_mapping["fred description"] == selection.timeseries
@@ -319,6 +326,40 @@ def insample_predictions_selection(training_df, transform_mapping,
             "Group Factors Only" : df3_preds}))
 
 
+def outofsample_predictions_section(
+    transformed_df, transform_mapping, selection: Sidebar_OOS_Input
+):
+    st.header("Out-of-sample predictions")
+    st.subheader(selection.timeseries)
+
+    # All in-sample predictions from GCS
+    oos_preds = (
+        gcs.unpack_csv(f"dfm{i}_oss_preds.csv") for i in range(1,4))
+    
+    oos_ts_fred = transform_mapping[
+        transform_mapping["fred description"] == selection.timeseries
+        ]["fred"].iloc[0]
+    actual_df_sel = transformed_df["2020":"2020"][oos_ts_fred]
+  
+    df1_preds, df2_preds, df3_preds = (
+        pred[oos_ts_fred]
+        for pred in oos_preds)
+
+    col1, col2 = st.columns([1.8,1])
+
+    with col1:
+        plots.plot_predictions({
+            "Global Factors Only" : (actual_df_sel, df1_preds),
+            "Global & Group Factors" : (actual_df_sel, df2_preds),
+            "Group Factors Only" : (actual_df_sel, df3_preds)
+        })
+    with col2:
+        st.table(data.get_pred_metrics(actual_df_sel, {
+            "Global Factors Only" : df1_preds,
+            "Global & Group Factors" : df2_preds,
+            "Group Factors Only" : df3_preds}))  
+    
+
 if __name__ == "__main__":
     untransformed_data_expander(raw_data, appendix)
     eda_expander(raw_data, appendix)
@@ -339,11 +380,14 @@ if __name__ == "__main__":
 
     training_df = model.get_training_dataset(transformed_df)
 
-    sidebar_inputs = sidebar(
+    sidebar_insample_inputs, sidebar_oos_inputs = sidebar(
         transform_mapping["fred description"],
         insample_start=training_df.index[0].year,
         insample_end=training_df.index[-1].year)
 
     # variable_grouping_section(transformed_df, transform_mapping)
-    insample_predictions_selection(training_df, transform_mapping,
-        sidebar_inputs)
+    insample_predictions_section(training_df, transform_mapping,
+        sidebar_insample_inputs)
+
+    outofsample_predictions_section(transformed_df, transform_mapping,
+        sidebar_oos_inputs)

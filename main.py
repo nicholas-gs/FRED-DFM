@@ -251,7 +251,7 @@ def principal_components_section(transformed_df, transform_mapping):
         plots.scree_plot(variance_ratios)
         comps = st.slider("Number of PCs", min_value=1, max_value=max_comp,
             value=4, key=123)
-        st.write(f"""The first 4 PCs explains
+        st.write(f"""The first {comps} PCs explains
             {sum(variance_ratios[0:comps])*100:.2f}% of the total variance.""")
 
     with tc2:
@@ -267,7 +267,7 @@ def principal_components_section(transformed_df, transform_mapping):
         plots.scree_plot(variance_ratios[option_id])
         comps = st.slider("Number of PCs", min_value=1, max_value=max_comp,
             value=4, key=420)
-        st.write(f"""The first 4 PCs explains
+        st.write(f"""The first {comps} PCs explains
             {sum(variance_ratios[option_id][0:comps])*100:.2f}%
             of the total variance.""")
 

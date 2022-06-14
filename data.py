@@ -1,3 +1,4 @@
+from typing import Dict
 import statsmodels.api as sm
 import streamlit as st
 import pandas as pd
@@ -7,6 +8,11 @@ import shutil
 import os
 
 from urllib.request import urlopen
+from sklearn.metrics import (
+    mean_squared_error,
+    mean_absolute_error,
+    mean_absolute_percentage_error
+)
 
 import constant
 
@@ -144,3 +150,16 @@ def is_stationary(df, alpha=0.05):
     adf_ts, pvalue, *rest = sm.tsa.adfuller(df,regression='ct')
     return (pvalue < alpha, adf_ts, pvalue)
 
+
+def get_pred_metrics(
+    actual: pd.Series, preds: Dict[str, pd.Series]
+) -> pd.DataFrame:
+    mspe = dict()
+    cols = list(preds.keys())
+    mspe["Mean Squared Error"] = [mean_squared_error(actual.fillna(
+        method="ffill"), preds[col]) for col in cols]
+    mspe["Mean Absolute Error"] = [mean_absolute_error(actual.fillna(
+        method="ffill"), preds[col]) for col in cols]
+    mspe["Mean Absolute Percentage Error"] = [mean_absolute_percentage_error(
+        actual.fillna(method="ffill"), preds[col]) for col in cols]
+    return pd.DataFrame.from_dict(mspe, orient="index", columns=cols)

@@ -304,11 +304,19 @@ def insample_predictions_selection(training_df, transform_mapping,
         pred[insample_start:insample_end][insample_ts_fred]
         for pred in insample_preds)
 
-    plots.plot_predictions({
-        "Global Factors Only" : (training_df_sel, df1_preds),
-        "Global & Group Factors" : (training_df_sel, df2_preds),
-        "Group Factors Only" : (training_df_sel, df3_preds)
-    })
+    col1, col2 = st.columns([1.8,1])
+
+    with col1:
+        plots.plot_predictions({
+            "Global Factors Only" : (training_df_sel, df1_preds),
+            "Global & Group Factors" : (training_df_sel, df2_preds),
+            "Group Factors Only" : (training_df_sel, df3_preds)
+        })
+    with col2:
+        st.table(data.get_pred_metrics(training_df_sel, {
+            "Global Factors Only" : df1_preds,
+            "Global & Group Factors" : df2_preds,
+            "Group Factors Only" : df3_preds}))
 
 
 if __name__ == "__main__":

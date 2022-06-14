@@ -43,7 +43,7 @@ def scree_plot(pca_vals) -> None:
         title="Scree Plot")
     fig.update_layout(width=600, height=400)
 
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def plot_predictions(ts: dict[str, tuple[list[float], list[float]]]):
@@ -63,7 +63,5 @@ def plot_predictions(ts: dict[str, tuple[list[float], list[float]]]):
         if row is not 0:
             fig.update_traces({"showlegend":False}, row=row+1, col=1)
 
-
-    fig.update_layout(height=800, width=800)
-
-    st.plotly_chart(fig)
+    fig.update_layout(height=800)
+    st.plotly_chart(fig, use_container_width=True)

@@ -1,6 +1,6 @@
 # Dynamic Factor Model Performance During Crisis using the FRED Dataset 
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/nicholas-gs/fred/test/flatdir/main.py)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://nicholas-gs-fred-main-ouww3e.streamlitapp.com/)
 
 
 3 [Dynamic Factor Models (DFM)](https://www.statsmodels.org/devel/generated/statsmodels.tsa.statespace.dynamic_factor_mq.DynamicFactorMQ.html) with different factor loadings fitted, and their insample and psuedo out-of-sample prediction accuraries are explored.
